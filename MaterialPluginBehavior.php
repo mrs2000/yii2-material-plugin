@@ -1,6 +1,6 @@
 <?
 
-namespace app\components;
+namespace mrssoft\plugins;
 
 use Yii;
 use yii\base\Behavior;

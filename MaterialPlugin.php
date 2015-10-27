@@ -1,6 +1,6 @@
 <?
 
-namespace app\components;
+namespace mrssoft\plugins;
 
 /**
  * Базовый класс для плагинов материалов
