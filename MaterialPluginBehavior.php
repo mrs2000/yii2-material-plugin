@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 
@@ -39,6 +40,7 @@ class MaterialPluginBehavior extends Behavior
     {
         /** @var \yii\db\ActiveRecord $owner */
         $owner = $this->owner;
+
         return 'material-plugin-' . get_class($owner) . '-' . $owner->primaryKey;
     }
 
@@ -64,7 +66,7 @@ class MaterialPluginBehavior extends Behavior
     public function afterSave()
     {
         $cacheID = $this->getCacheID();
-        \Yii::$app->cache->delete($cacheID);
+        Yii::$app->cache->delete($cacheID);
     }
 
     /**
@@ -86,7 +88,7 @@ class MaterialPluginBehavior extends Behavior
                     $pluginResult = $this->getPluginObject($plugin, $initPlugin)
                                          ->run($params);
                 } else {
-                    \Yii::error('Plugin not found: ' . $plugin);
+                    Yii::error('Plugin not found: ' . $plugin);
                     $pluginResult = '';
                 }
 
@@ -116,16 +118,16 @@ class MaterialPluginBehavior extends Behavior
     {
         /** @var $obj MaterialPlugin */
 
-        if (isset(\Yii::$app->params['material-plugins'][$pluginName])) {
-            $obj = \Yii::$app->params['material-plugins'][$pluginName];
+        if (isset(Yii::$app->params['material-plugins'][$pluginName])) {
+            $obj = Yii::$app->params['material-plugins'][$pluginName];
         } else {
-            $class = $this->pluginNamespace.$this->plugins[$pluginName];
+            $class = $this->pluginNamespace . $this->plugins[$pluginName];
             $obj = new $class();
             if ($initPlugin) {
                 $obj->init();
             }
 
-            \Yii::$app->params['material-plugins'][$pluginName] = $obj;
+            Yii::$app->params['material-plugins'][$pluginName] = $obj;
         }
 
         return $obj;
