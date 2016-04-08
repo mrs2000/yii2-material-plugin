@@ -31,17 +31,22 @@ class MaterialPluginBehavior extends Behavior
     public $active = true;
 
     /**
+     * Только отчитска кода вставки
+     * @var bool
+     */
+    public $clear = false;
+
+    /**
      * Путь к папке в плагинами
      * @var string
      */
     public $pluginNamespace = '\app\plugins\\';
 
-    private function getCacheID()
-    {
-        /** @var \yii\db\ActiveRecord $owner */
-        $owner = $this->owner;
 
-        return 'material-plugin-' . get_class($owner) . '-' . $owner->primaryKey;
+    public function attach($owner)
+    {
+        parent::attach($owner);
+        $this->process($owner);
     }
 
     public function events()
@@ -52,21 +57,17 @@ class MaterialPluginBehavior extends Behavior
         ];
     }
 
-    public function afterFind()
+    private function process($owner)
     {
-        if ($this->active && !empty($this->owner->{$this->attribute})) {
-            if (empty($result)) {
-                $result = $this->getTextWithPlugins($this->owner->{$this->attribute}, true);
+        if ($this->active && !empty($owner->{$this->attribute})) {
+            if ($this->clear) {
+                $result = $this->getTextClearPlugins($owner->{$this->attribute});
+            } else {
+                $result = $this->getTextWithPlugins($owner->{$this->attribute}, true);
             }
 
-            $this->owner->{$this->attribute} = $result;
+            $owner->{$this->attribute} = $result;
         }
-    }
-
-    public function afterSave()
-    {
-        $cacheID = $this->getCacheID();
-        Yii::$app->cache->delete($cacheID);
     }
 
     /**
