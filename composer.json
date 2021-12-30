@@ -1,6 +1,6 @@
 {
     "name": "mrssoft/yii2-material-plugin",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "Yii2 material plugin extension",
     "type": "yii2-extension",
     "keywords": ["yii2","extension", "plugin"],
@@ -12,6 +12,7 @@
         }
     ],
     "require": {
+        "php": ">=8.0",
         "yiisoft/yii2": "*"
     },
     "autoload": {

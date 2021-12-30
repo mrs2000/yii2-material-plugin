@@ -1,10 +1,9 @@
-<?
+<?php
 
 namespace mrssoft\plugins;
 
 use Yii;
 use yii\base\Behavior;
-use yii\db\ActiveRecord;
 
 /**
  * Обрабатывает вставленные в текст плагины
@@ -16,31 +15,33 @@ class MaterialPluginBehavior extends Behavior
      * Поле с исходным текстом
      * @var string
      */
-    public $attribute = 'text';
+    public string $attribute = 'text';
 
     /**
      * Список плагинов
      * @var array
      */
-    public $plugins = [];
+    public array $plugins = [];
 
     /**
      * Включен ли плагин
      * @var bool
      */
-    public $active = true;
+    public bool $active = true;
 
     /**
      * Только отчитска кода вставки
      * @var bool
      */
-    public $clear = false;
+    public bool $clear = false;
 
     /**
      * Путь к папке в плагинами
      * @var string
      */
-    public $pluginNamespace = '\app\plugins\\';
+    public string $pluginNamespace = '\app\plugins\\';
+
+    public static array $initPlugins = [];
 
 
     public function attach($owner)
@@ -49,17 +50,9 @@ class MaterialPluginBehavior extends Behavior
         $this->process($owner);
     }
 
-    public function events()
+    private function process($owner): void
     {
-        return [
-            ActiveRecord::EVENT_AFTER_FIND => 'afterFind',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'afterSave',
-        ];
-    }
-
-    private function process($owner)
-    {
-        if ($this->active && !empty($owner->{$this->attribute})) {
+        if ($this->active && empty($owner->{$this->attribute}) === false) {
             if ($this->clear) {
                 $result = $this->getTextClearPlugins($owner->{$this->attribute});
             } else {
@@ -73,28 +66,21 @@ class MaterialPluginBehavior extends Behavior
     /**
      * Текст с плагинами
      * @param string $text
-     * @param $initPlugin
+     * @param bool $initPlugin
      * @return string
      */
-    public function getTextWithPlugins($text, $initPlugin = false)
+    public function getTextWithPlugins(string $text, bool $initPlugin = false): string
     {
-        if (preg_match_all('/{plugin:(.+)(\[(.+)\])?}/mU', $text, $matches)) {
-            foreach ($matches[1] as $n => $plugin) {
-                if (array_key_exists($plugin, $this->plugins)) {
-                    $params = [];
-                    foreach (explode(',', $matches[3][$n]) as $p) {
-                        $t = explode('=', $p);
-                        $params[$t[0]] = $t[1];
-                    }
-                    $pluginResult = $this->getPluginObject($plugin, $initPlugin)
-                                         ->run($params);
-                } else {
-                    Yii::error('Plugin not found: ' . $plugin);
-                    $pluginResult = '';
-                }
-
-                $text = str_replace($matches[0][$n], $pluginResult, $text);
+        foreach (PluginHelper::parseCode($text) as $info) {
+            if (array_key_exists($info->getName(), $this->plugins)) {
+                $result = $this->getPluginObject($info->getName(), $initPlugin)
+                               ->run($info->getParams());
+            } else {
+                Yii::error('Plugin not found: ' . $info->getName());
+                $result = '';
             }
+
+            $text = str_replace($info->getReplace(), $result, $text);
         }
 
         return $text;
@@ -105,32 +91,27 @@ class MaterialPluginBehavior extends Behavior
      * @param string $text
      * @return string
      */
-    public function getTextClearPlugins($text)
+    public function getTextClearPlugins(string $text): string
     {
         return preg_replace('/{plugin:.*}/mU', '', $text);
     }
 
     /**
-     * @param $pluginName
+     * @param string $pluginName
      * @param bool $initPlugin
      * @return MaterialPlugin
      */
-    private function getPluginObject($pluginName, $initPlugin)
+    private function getPluginObject(string $pluginName, bool $initPlugin): MaterialPlugin
     {
-        /** @var $obj MaterialPlugin */
-
-        if (isset(Yii::$app->params['material-plugins'][$pluginName])) {
-            $obj = Yii::$app->params['material-plugins'][$pluginName];
-        } else {
+        if (array_key_exists($pluginName, self::$initPlugins) === false) {
             $class = $this->pluginNamespace . $this->plugins[$pluginName];
             $obj = new $class();
             if ($initPlugin) {
                 $obj->init();
             }
-
-            Yii::$app->params['material-plugins'][$pluginName] = $obj;
+            self::$initPlugins[$pluginName] = $obj;
         }
 
-        return $obj;
+        return self::$initPlugins[$pluginName];
     }
 }
