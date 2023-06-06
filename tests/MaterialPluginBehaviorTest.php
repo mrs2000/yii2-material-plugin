@@ -38,6 +38,22 @@ class MaterialPluginBehaviorTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('TEST START  TEST END', $model->text);
     }
 
+    public function testOnlyOneReplacement(): void
+    {
+        $behavior = new MaterialPluginBehavior([
+            'pluginNamespace' => '\\tests\\',
+            'plugins' => [
+                'id' => 'IdPlugin'
+            ]
+        ]);
+
+        $model = new TestActiveRecord();
+        $model->text = 'TEST START {plugin:id} ANOTHER {plugin:id} TEST END';
+        $model->attachBehavior('materialPlugin', $behavior);
+
+        self::assertEquals('TEST START 1 ANOTHER 2 TEST END', $model->text);
+    }
+
     public function testTextClearPlugins(): void
     {
         $behavior = new MaterialPluginBehavior([

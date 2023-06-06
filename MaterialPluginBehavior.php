@@ -68,7 +68,8 @@ class MaterialPluginBehavior extends Behavior
                 $result = '';
             }
 
-            $text = str_replace($info->getReplace(), $result, $text);
+            $search = '/' . preg_quote($info->getReplace(), '/') . '/';
+            $text = preg_replace($search, $result, $text, 1);
         }
 
         return $text;

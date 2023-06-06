@@ -8,7 +8,6 @@ class TestPlugin extends MaterialPlugin
 {
     public function init(): void
     {
-        // TODO: Implement init() method.
     }
 
     public function run(array $params = []): string
