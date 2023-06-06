@@ -7,7 +7,7 @@ use mrssoft\plugins\PluginInfo;
 
 class MaterialPluginHelperTest extends \PHPUnit\Framework\TestCase
 {
-    public function testParseCode()
+    public function testParseCode(): void
     {
         $text = 'TEST START {plugin:items[category=9326,min=17100,max=193792,filter=127:3125]} TEST END';
 

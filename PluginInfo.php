@@ -8,9 +8,10 @@ class PluginInfo
 
     private string $replace;
 
-    private array $params;
+    private array $params = [];
 
-    public function __construct(string $name, string $replace) {
+    public function __construct(string $name, string $replace)
+    {
         $this->name = $name;
         $this->replace = $replace;
     }

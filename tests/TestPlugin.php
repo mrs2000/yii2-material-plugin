@@ -6,7 +6,7 @@ use mrssoft\plugins\MaterialPlugin;
 
 class TestPlugin extends MaterialPlugin
 {
-    public function init()
+    public function init(): void
     {
         // TODO: Implement init() method.
     }

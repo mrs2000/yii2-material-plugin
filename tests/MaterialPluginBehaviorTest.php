@@ -6,7 +6,7 @@ use mrssoft\plugins\MaterialPluginBehavior;
 
 class MaterialPluginBehaviorTest extends \PHPUnit\Framework\TestCase
 {
-    public function testTextWithPlugins()
+    public function testTextWithPlugins(): void
     {
         $behavior = new MaterialPluginBehavior([
             'pluginNamespace' => '\\tests\\',
@@ -22,7 +22,23 @@ class MaterialPluginBehaviorTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('TEST START category=9326 TEST END', $model->text);
     }
 
-    public function testTextClearPlugins()
+    public function testPluginWhioutParametrs(): void
+    {
+        $behavior = new MaterialPluginBehavior([
+            'pluginNamespace' => '\\tests\\',
+            'plugins' => [
+                'items' => 'TestPlugin'
+            ]
+        ]);
+
+        $model = new TestActiveRecord();
+        $model->text = 'TEST START {plugin:items} TEST END';
+        $model->attachBehavior('materialPlugin', $behavior);
+
+        self::assertEquals('TEST START  TEST END', $model->text);
+    }
+
+    public function testTextClearPlugins(): void
     {
         $behavior = new MaterialPluginBehavior([
             'clear' => true,
@@ -39,7 +55,7 @@ class MaterialPluginBehaviorTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('TEST START  TEST END', $model->text);
     }
 
-    public function testNotActivePlugins()
+    public function testNotActivePlugins(): void
     {
         $behavior = new MaterialPluginBehavior([
             'active' => false,

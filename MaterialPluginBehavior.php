@@ -13,38 +13,29 @@ class MaterialPluginBehavior extends Behavior
 {
     /**
      * Поле с исходным текстом
-     * @var string
      */
     public string $attribute = 'text';
 
     /**
      * Список плагинов
-     * @var array
      */
     public array $plugins = [];
 
     /**
      * Включен ли плагин
-     * @var bool
      */
     public bool $active = true;
 
     /**
-     * Только отчитска кода вставки
-     * @var bool
+     * Только очитска кода вставки
      */
     public bool $clear = false;
 
-    /**
-     * Путь к папке в плагинами
-     * @var string
-     */
     public string $pluginNamespace = '\app\plugins\\';
 
     public static array $initPlugins = [];
 
-
-    public function attach($owner)
+    public function attach($owner): void
     {
         parent::attach($owner);
         $this->process($owner);
@@ -65,9 +56,6 @@ class MaterialPluginBehavior extends Behavior
 
     /**
      * Текст с плагинами
-     * @param string $text
-     * @param bool $initPlugin
-     * @return string
      */
     public function getTextWithPlugins(string $text, bool $initPlugin = false): string
     {
@@ -88,19 +76,12 @@ class MaterialPluginBehavior extends Behavior
 
     /**
      * Удалить код вставки плагина из текста
-     * @param string $text
-     * @return string
      */
     public function getTextClearPlugins(string $text): string
     {
         return preg_replace('/{plugin:.*}/mU', '', $text);
     }
 
-    /**
-     * @param string $pluginName
-     * @param bool $initPlugin
-     * @return MaterialPlugin
-     */
     private function getPluginObject(string $pluginName, bool $initPlugin): MaterialPlugin
     {
         if (array_key_exists($pluginName, self::$initPlugins) === false) {
