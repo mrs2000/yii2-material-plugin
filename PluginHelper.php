@@ -17,7 +17,9 @@ class PluginHelper
                 if ($matches[3][$n]) {
                     foreach (explode(',', $matches[3][$n]) as $p) {
                         $t = explode('=', $p);
-                        $info->addParams($t[0], $t[1]);
+                        if ($t[0] && $t[1]) {
+                            $info->addParams($t[0], $t[1]);
+                        }
                     }
                 }
                 $result[] = $info;
